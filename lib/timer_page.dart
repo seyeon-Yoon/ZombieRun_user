@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'widgets/common_navigation_bar.dart';
+import 'memo_page.dart';
+import 'map_page.dart';
 
 class TimerPage extends StatefulWidget {
   const TimerPage({super.key});
@@ -11,6 +14,19 @@ class TimerPage extends StatefulWidget {
 class _TimerPageState extends State<TimerPage> {
   bool _isRunning = false;
   double _progress = 0.5; // 프로그레스 바의 진행도 (0.0 ~ 1.0)
+
+  void _handleNavigation(int index) {
+    if (index == 1) return; // 현재 타이머 페이지이므로 이동하지 않음
+    
+    switch (index) {
+      case 0:
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MemoPage()));
+        break;
+      case 2:
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const MapPage()));
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,9 +114,9 @@ class _TimerPageState extends State<TimerPage> {
                           borderRadius: BorderRadius.circular(25),
                         ),
                       ),
-                      child: Text(
-                        _isRunning ? '일시정지' : '시작',
-                        style: const TextStyle(
+                      child: const Text(
+                        '시작',
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),
@@ -132,34 +148,10 @@ class _TimerPageState extends State<TimerPage> {
               ],
             ),
           ),
-          // 하단 버튼들
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    // TODO: 메모 기능 구현
-                  },
-                  icon: const Icon(Icons.edit, color: Colors.white),
-                ),
-                IconButton(
-                  onPressed: () {
-                    // TODO: 카메라 기능 구현
-                  },
-                  icon: const Icon(Icons.camera_alt, color: Colors.white),
-                ),
-                IconButton(
-                  onPressed: () {
-                    // TODO: 지도 기능 구현
-                  },
-                  icon: const Icon(Icons.map, color: Colors.white),
-                ),
-              ],
-            ),
+          // 공통 네비게이션 바
+          CommonNavigationBar(
+            currentIndex: 1,
+            onTap: _handleNavigation,
           ),
         ],
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'timer_page.dart';
+import 'main_container.dart';
 
 class ThemeCodePage extends StatefulWidget {
   const ThemeCodePage({super.key});
@@ -31,11 +31,11 @@ class _ThemeCodePageState extends State<ThemeCodePage> {
         _code += number;
       });
       
-      // 4자리가 모두 입력되면 타이머 페이지로 이동
+      // 4자리가 모두 입력되면 MainContainer로 이동
       if (_code.length == 4) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TimerPage()),
+          MaterialPageRoute(builder: (context) => const MainContainer()),
         );
       }
     }
