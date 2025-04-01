@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'dart:async';
 import 'widgets/common_navigation_bar.dart';
 import 'memo_page.dart';
 import 'map_page.dart';
+import 'screens/hint_screen.dart';
+import 'main_container.dart';
 
 class TimerPage extends StatefulWidget {
-  const TimerPage({super.key});
+  final int initialMinutes;
+  
+  const TimerPage({
+    super.key,
+    required this.initialMinutes,
+  });
 
   @override
   State<TimerPage> createState() => _TimerPageState();
@@ -13,18 +21,125 @@ class TimerPage extends StatefulWidget {
 
 class _TimerPageState extends State<TimerPage> {
   bool _isRunning = false;
-  double _progress = 0.5; // 프로그레스 바의 진행도 (0.0 ~ 1.0)
+  double _progress = 1.0;
+  late int _remainingSeconds;
+  Timer? _timer;
+  DateTime? _startTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _remainingSeconds = widget.initialMinutes * 60;
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    if (!_isRunning) {
+      setState(() {
+        _isRunning = true;
+        _startTime = DateTime.now();
+      });
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        setState(() {
+          if (_remainingSeconds > 0) {
+            _remainingSeconds--;
+            _progress = _remainingSeconds / (widget.initialMinutes * 60);
+          } else {
+            _timer?.cancel();
+            _isRunning = false;
+            _startTime = null;
+            // 타이머 종료 시 알림 표시
+            if (context.mounted) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor: const Color(0xFF333333),
+                    title: const Text(
+                      '시간 종료',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    content: const Text(
+                      '주변 STAFF를 찾아주세요',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text(
+                          '확인',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+          }
+        });
+      });
+    }
+  }
+
+  void _stopTimer() {
+    _timer?.cancel();
+    setState(() {
+      _isRunning = false;
+      _startTime = null;
+    });
+  }
+
+  @override
+  void didUpdateWidget(TimerPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialMinutes != widget.initialMinutes) {
+      _remainingSeconds = widget.initialMinutes * 60;
+      _progress = 1.0;
+      if (_isRunning) {
+        _startTimer();
+      }
+    }
+  }
+
+  String _formatTime(int seconds) {
+    final hours = seconds ~/ 3600;
+    final minutes = (seconds % 3600) ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
 
   void _handleNavigation(int index) {
     if (index == 1) return; // 현재 타이머 페이지이므로 이동하지 않음
     
-    switch (index) {
-      case 0:
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const MemoPage()));
-        break;
-      case 2:
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const MapPage()));
-        break;
+    // MainContainer의 페이지 전환을 사용
+    if (context.mounted) {
+      final mainContainer = context.findAncestorStateOfType<MainContainerState>();
+      if (mainContainer != null) {
+        mainContainer.currentIndex = index;
+      }
+    }
+  }
+
+  Color _getTimerColor() {
+    final totalSeconds = widget.initialMinutes * 60;
+    final halfTime = totalSeconds ~/ 2;
+    final tenMinutes = 10 * 60; // 10분을 초로 변환
+
+    if (_remainingSeconds <= tenMinutes) {
+      return Colors.red;
+    } else if (_remainingSeconds <= halfTime) {
+      return Colors.yellow;
+    } else {
+      return Colors.green;
     }
   }
 
@@ -39,9 +154,7 @@ class _TimerPageState extends State<TimerPage> {
             top: 40,
             right: 20,
             child: TextButton(
-              onPressed: () {
-                // TODO: 정지 기능 구현
-              },
+              onPressed: _isRunning ? _stopTimer : null,
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 side: const BorderSide(color: Colors.white),
@@ -80,14 +193,14 @@ class _TimerPageState extends State<TimerPage> {
                       size: const Size(300, 300),
                       painter: TimerPainter(
                         progress: _progress,
-                        color: Colors.green,
+                        color: _getTimerColor(),
                         strokeWidth: 10,
                       ),
                     ),
                     // 타이머 텍스트
-                    const Text(
-                      '0:00:00',
-                      style: TextStyle(
+                    Text(
+                      _formatTime(_remainingSeconds),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 48,
                         fontWeight: FontWeight.bold,
@@ -101,9 +214,7 @@ class _TimerPageState extends State<TimerPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        // TODO: 시작 기능 구현
-                      },
+                      onPressed: _isRunning ? null : _startTimer,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
@@ -123,7 +234,10 @@ class _TimerPageState extends State<TimerPage> {
                     const SizedBox(width: 20),
                     ElevatedButton(
                       onPressed: () {
-                        // TODO: 힌트 기능 구현
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const HintScreen()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
@@ -150,6 +264,7 @@ class _TimerPageState extends State<TimerPage> {
           CommonNavigationBar(
             currentIndex: 1,
             onTap: _handleNavigation,
+            initialMinutes: widget.initialMinutes,
           ),
         ],
       ),

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import '../main_container.dart';
 
 class CommonNavigationBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
+  final int initialMinutes;
 
   const CommonNavigationBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    required this.initialMinutes,
   });
 
   @override

@@ -2,20 +2,25 @@ import 'package:flutter/material.dart';
 import 'widgets/common_navigation_bar.dart';
 import 'memo_page.dart';
 import 'timer_page.dart';
+import 'main_container.dart';
 
 class MapPage extends StatelessWidget {
-  const MapPage({super.key});
+  final int initialMinutes;
+
+  const MapPage({
+    super.key,
+    required this.initialMinutes,
+  });
 
   void _handleNavigation(BuildContext context, int index) {
     if (index == 2) return; // 현재 약도 페이지이므로 이동하지 않음
     
-    switch (index) {
-      case 0:
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const MemoPage()));
-        break;
-      case 1:
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const TimerPage()));
-        break;
+    // MainContainer의 페이지 전환을 사용
+    if (context.mounted) {
+      final mainContainer = context.findAncestorStateOfType<MainContainerState>();
+      if (mainContainer != null) {
+        mainContainer.currentIndex = index;
+      }
     }
   }
 
@@ -62,6 +67,7 @@ class MapPage extends StatelessWidget {
           CommonNavigationBar(
             currentIndex: 2,
             onTap: (index) => _handleNavigation(context, index),
+            initialMinutes: initialMinutes,
           ),
         ],
       ),

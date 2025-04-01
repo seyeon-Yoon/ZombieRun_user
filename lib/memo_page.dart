@@ -4,9 +4,15 @@ import 'dart:convert';
 import 'widgets/common_navigation_bar.dart';
 import 'timer_page.dart';
 import 'map_page.dart';
+import 'main_container.dart';
 
 class MemoPage extends StatefulWidget {
-  const MemoPage({super.key});
+  final int initialMinutes;
+
+  const MemoPage({
+    super.key,
+    required this.initialMinutes,
+  });
 
   @override
   State<MemoPage> createState() => _MemoPageState();
@@ -174,13 +180,12 @@ class _MemoPageState extends State<MemoPage> {
   void _handleNavigation(BuildContext context, int index) {
     if (index == 0) return; // 현재 메모 페이지이므로 이동하지 않음
     
-    switch (index) {
-      case 1:
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const TimerPage()));
-        break;
-      case 2:
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const MapPage()));
-        break;
+    // MainContainer의 페이지 전환을 사용
+    if (context.mounted) {
+      final mainContainer = context.findAncestorStateOfType<MainContainerState>();
+      if (mainContainer != null) {
+        mainContainer.currentIndex = index;
+      }
     }
   }
 
@@ -290,6 +295,7 @@ class _MemoPageState extends State<MemoPage> {
           CommonNavigationBar(
             currentIndex: 0,
             onTap: (index) => _handleNavigation(context, index),
+            initialMinutes: widget.initialMinutes,
           ),
         ],
       ),

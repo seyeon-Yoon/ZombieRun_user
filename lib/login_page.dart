@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme_code_page.dart';
+import 'database/users.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -92,8 +93,7 @@ class _LoginPageState extends State<LoginPage> {
               child: ElevatedButton(
                 onPressed: _isFormValid
                     ? () {
-                        if (_idController.text == 'admin' && 
-                            _passwordController.text == '1234') {
+                        if (UsersDB().validateUser(_idController.text, _passwordController.text)) {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(

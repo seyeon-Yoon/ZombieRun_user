@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MemoProvider(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Zombie Run',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -72,17 +73,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                       (states) {
                         if (states.contains(MaterialState.pressed)) {
-                          return const Color(0xFF4CAF50); // 눌렀을 때 연두색으로 변경
+                          return const Color(0xFF4CAF50);
                         }
-                        return Colors.grey[300]!; // 기본 색상
+                        return Colors.grey[300]!;
                       },
                     ),
                     foregroundColor: MaterialStateProperty.resolveWith<Color>(
                       (states) {
                         if (states.contains(MaterialState.pressed)) {
-                          return Colors.white; // 눌렀을 때 텍스트 색상 흰색으로
+                          return Colors.white;
                         }
-                        return Colors.black; // 기본 텍스트 색상
+                        return Colors.black;
                       },
                     ),
                     padding: MaterialStateProperty.all(
