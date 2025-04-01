@@ -102,9 +102,7 @@ class _TimerPageState extends State<TimerPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          _isRunning = !_isRunning;
-                        });
+                        // TODO: 시작 기능 구현
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
