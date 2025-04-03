@@ -8,10 +8,14 @@ import 'main_container.dart';
 
 class MemoPage extends StatefulWidget {
   final int initialMinutes;
+  final Function(int) onNavigation;
+  final bool isTimerEnded;
 
   const MemoPage({
     super.key,
     required this.initialMinutes,
+    required this.onNavigation,
+    required this.isTimerEnded,
   });
 
   @override
@@ -32,6 +36,58 @@ class _MemoPageState extends State<MemoPage> {
   void initState() {
     super.initState();
     _loadStrokes();
+    _showTimerEndedAlert();
+  }
+
+  @override
+  void didUpdateWidget(MemoPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isTimerEnded && !oldWidget.isTimerEnded) {
+      _showTimerEndedAlert();
+    }
+  }
+
+  void _showTimerEndedAlert() {
+    if (widget.isTimerEnded) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF333333),
+            title: const Text(
+              '시간 종료',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: const Text(
+              '시간이 종료되었습니다.\n근처 관계자를 찾아주세요.',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  '확인',
+                  style: TextStyle(
+                    color: Color(0xFF4CAF50),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   // strokes 데이터를 JSON 형식으로 변환
@@ -177,16 +233,10 @@ class _MemoPageState extends State<MemoPage> {
     });
   }
 
-  void _handleNavigation(BuildContext context, int index) {
+  void _handleNavigation(int index) {
     if (index == 0) return; // 현재 메모 페이지이므로 이동하지 않음
     
-    // MainContainer의 페이지 전환을 사용
-    if (context.mounted) {
-      final mainContainer = context.findAncestorStateOfType<MainContainerState>();
-      if (mainContainer != null) {
-        mainContainer.currentIndex = index;
-      }
-    }
+    widget.onNavigation(index);
   }
 
   @override
@@ -294,7 +344,7 @@ class _MemoPageState extends State<MemoPage> {
           // 공통 네비게이션 바
           CommonNavigationBar(
             currentIndex: 0,
-            onTap: (index) => _handleNavigation(context, index),
+            onTap: _handleNavigation,
             initialMinutes: widget.initialMinutes,
           ),
         ],

@@ -9,10 +9,22 @@ import 'main_container.dart';
 
 class TimerPage extends StatefulWidget {
   final int initialMinutes;
-  
+  final Function(int) onNavigation;
+  final int remainingSeconds;
+  final bool isRunning;
+  final DateTime? startTime;
+  final Function(int, bool, DateTime?) onTimerUpdate;
+  final bool isTimerEnded;
+
   const TimerPage({
     super.key,
     required this.initialMinutes,
+    required this.onNavigation,
+    required this.remainingSeconds,
+    required this.isRunning,
+    required this.startTime,
+    required this.onTimerUpdate,
+    required this.isTimerEnded,
   });
 
   @override
@@ -20,22 +32,42 @@ class TimerPage extends StatefulWidget {
 }
 
 class _TimerPageState extends State<TimerPage> {
-  bool _isRunning = false;
-  double _progress = 1.0;
   late int _remainingSeconds;
+  late bool _isRunning;
+  late DateTime? _startTime;
   Timer? _timer;
-  DateTime? _startTime;
+  double _progress = 1.0;
 
   @override
   void initState() {
     super.initState();
-    _remainingSeconds = widget.initialMinutes * 60;
+    _remainingSeconds = widget.remainingSeconds;
+    _isRunning = widget.isRunning;
+    _startTime = widget.startTime;
+    _progress = _remainingSeconds / (widget.initialMinutes * 60);
+    
+    if (_isRunning && _startTime != null) {
+      _startTimer();
+    }
+    _showTimerEndedAlert();
   }
 
   @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+  void didUpdateWidget(TimerPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.remainingSeconds != widget.remainingSeconds ||
+        oldWidget.isRunning != widget.isRunning ||
+        oldWidget.startTime != widget.startTime) {
+      setState(() {
+        _remainingSeconds = widget.remainingSeconds;
+        _isRunning = widget.isRunning;
+        _startTime = widget.startTime;
+        _progress = _remainingSeconds / (widget.initialMinutes * 60);
+      });
+    }
+    if (widget.isTimerEnded && !oldWidget.isTimerEnded) {
+      _showTimerEndedAlert();
+    }
   }
 
   void _startTimer() {
@@ -44,16 +76,20 @@ class _TimerPageState extends State<TimerPage> {
         _isRunning = true;
         _startTime = DateTime.now();
       });
+      widget.onTimerUpdate(_remainingSeconds, _isRunning, _startTime);
+      
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
           if (_remainingSeconds > 0) {
             _remainingSeconds--;
             _progress = _remainingSeconds / (widget.initialMinutes * 60);
+            widget.onTimerUpdate(_remainingSeconds, _isRunning, _startTime);
           } else {
             _timer?.cancel();
             _isRunning = false;
             _startTime = null;
-            // 타이머 종료 시 알림 표시
+            widget.onTimerUpdate(_remainingSeconds, _isRunning, _startTime);
+            
             if (context.mounted) {
               showDialog(
                 context: context,
@@ -66,7 +102,7 @@ class _TimerPageState extends State<TimerPage> {
                       style: TextStyle(color: Colors.white),
                     ),
                     content: const Text(
-                      '주변 STAFF를 찾아주세요',
+                      '근처 관계자를 찾아주세요',
                       style: TextStyle(color: Colors.white),
                     ),
                     actions: [
@@ -90,24 +126,31 @@ class _TimerPageState extends State<TimerPage> {
     }
   }
 
-  void _stopTimer() {
+  void _pauseTimer() {
+    if (_isRunning) {
+      _timer?.cancel();
+      setState(() {
+        _isRunning = false;
+      });
+      widget.onTimerUpdate(_remainingSeconds, _isRunning, _startTime);
+    }
+  }
+
+  void _resetTimer() {
     _timer?.cancel();
     setState(() {
+      _remainingSeconds = widget.initialMinutes * 60;
       _isRunning = false;
       _startTime = null;
+      _progress = 1.0;
     });
+    widget.onTimerUpdate(_remainingSeconds, _isRunning, _startTime);
   }
 
   @override
-  void didUpdateWidget(TimerPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialMinutes != widget.initialMinutes) {
-      _remainingSeconds = widget.initialMinutes * 60;
-      _progress = 1.0;
-      if (_isRunning) {
-        _startTimer();
-      }
-    }
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   String _formatTime(int seconds) {
@@ -120,13 +163,7 @@ class _TimerPageState extends State<TimerPage> {
   void _handleNavigation(int index) {
     if (index == 1) return; // 현재 타이머 페이지이므로 이동하지 않음
     
-    // MainContainer의 페이지 전환을 사용
-    if (context.mounted) {
-      final mainContainer = context.findAncestorStateOfType<MainContainerState>();
-      if (mainContainer != null) {
-        mainContainer.currentIndex = index;
-      }
-    }
+    widget.onNavigation(index);
   }
 
   Color _getTimerColor() {
@@ -143,6 +180,49 @@ class _TimerPageState extends State<TimerPage> {
     }
   }
 
+  void _showTimerEndedAlert() {
+    if (widget.isTimerEnded) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF333333),
+            title: const Text(
+              '시간 종료',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: const Text(
+              '시간이 종료되었습니다.\n근처 관계자를 찾아주세요.',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  '확인',
+                  style: TextStyle(
+                    color: Color(0xFF4CAF50),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,7 +234,7 @@ class _TimerPageState extends State<TimerPage> {
             top: 40,
             right: 20,
             child: TextButton(
-              onPressed: _isRunning ? _stopTimer : null,
+              onPressed: _isRunning ? _pauseTimer : null,
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 side: const BorderSide(color: Colors.white),
@@ -259,12 +339,6 @@ class _TimerPageState extends State<TimerPage> {
                 ),
               ],
             ),
-          ),
-          // 공통 네비게이션 바
-          CommonNavigationBar(
-            currentIndex: 1,
-            onTap: _handleNavigation,
-            initialMinutes: widget.initialMinutes,
           ),
         ],
       ),

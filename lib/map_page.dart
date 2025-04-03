@@ -1,26 +1,76 @@
 import 'package:flutter/material.dart';
-import 'widgets/common_navigation_bar.dart';
-import 'memo_page.dart';
-import 'timer_page.dart';
-import 'main_container.dart';
 
-class MapPage extends StatelessWidget {
+class MapPage extends StatefulWidget {
   final int initialMinutes;
+  final Function(int) onNavigation;
+  final bool isTimerEnded;
 
   const MapPage({
     super.key,
     required this.initialMinutes,
+    required this.onNavigation,
+    required this.isTimerEnded,
   });
 
-  void _handleNavigation(BuildContext context, int index) {
-    if (index == 2) return; // 현재 약도 페이지이므로 이동하지 않음
-    
-    // MainContainer의 페이지 전환을 사용
-    if (context.mounted) {
-      final mainContainer = context.findAncestorStateOfType<MainContainerState>();
-      if (mainContainer != null) {
-        mainContainer.currentIndex = index;
-      }
+  @override
+  State<MapPage> createState() => _MapPageState();
+}
+
+class _MapPageState extends State<MapPage> {
+  @override
+  void initState() {
+    super.initState();
+    _showTimerEndedAlert();
+  }
+
+  @override
+  void didUpdateWidget(MapPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isTimerEnded && !oldWidget.isTimerEnded) {
+      _showTimerEndedAlert();
+    }
+  }
+
+  void _showTimerEndedAlert() {
+    if (widget.isTimerEnded) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF333333),
+            title: const Text(
+              '시간 종료',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: const Text(
+              '시간이 종료되었습니다.\n근처 관계자를 찾아주세요.',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  '확인',
+                  style: TextStyle(
+                    color: Color(0xFF4CAF50),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -28,48 +78,11 @@ class MapPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF333333),
-      body: Stack(
-        children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  '약도 페이지',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  width: 300,
-                  height: 300,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[800],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '지도가 들어갈 자리입니다',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // 공통 네비게이션 바
-          CommonNavigationBar(
-            currentIndex: 2,
-            onTap: (index) => _handleNavigation(context, index),
-            initialMinutes: initialMinutes,
-          ),
-        ],
+      body: Center(
+        child: Image.asset(
+          'assets/images/map.png',
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }
