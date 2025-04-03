@@ -37,6 +37,7 @@ class _TimerPageState extends State<TimerPage> {
   late DateTime? _startTime;
   Timer? _timer;
   double _progress = 1.0;
+  String _adminCode = '';
 
   @override
   void initState() {
@@ -128,12 +129,192 @@ class _TimerPageState extends State<TimerPage> {
 
   void _pauseTimer() {
     if (_isRunning) {
+      setState(() {
+        _adminCode = '';
+      });
+      
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                backgroundColor: const Color(0xFF333333),
+                contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+                title: Stack(
+                  children: [
+                    const Text(
+                      '관리자용',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Positioned(
+                      right: -10,
+                      top: -10,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          _startTimer();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      '관리자 코드를 입력해주세요',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(4, (index) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 5),
+                          width: 15,
+                          height: 15,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white),
+                            color: index < _adminCode.length ? Colors.white : Colors.transparent,
+                          ),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildNumberButton('1', setState),
+                            const SizedBox(width: 20),
+                            _buildNumberButton('2', setState),
+                            const SizedBox(width: 20),
+                            _buildNumberButton('3', setState),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildNumberButton('4', setState),
+                            const SizedBox(width: 20),
+                            _buildNumberButton('5', setState),
+                            const SizedBox(width: 20),
+                            _buildNumberButton('6', setState),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildNumberButton('7', setState),
+                            const SizedBox(width: 20),
+                            _buildNumberButton('8', setState),
+                            const SizedBox(width: 20),
+                            _buildNumberButton('9', setState),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildNumberButton('←', setState),
+                            const SizedBox(width: 20),
+                            _buildNumberButton('0', setState),
+                            const SizedBox(width: 20),
+                            Container(width: 50), // X 버튼 대신 빈 공간
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
+      
       _timer?.cancel();
       setState(() {
         _isRunning = false;
       });
       widget.onTimerUpdate(_remainingSeconds, _isRunning, _startTime);
     }
+  }
+
+  Widget _buildNumberButton(String number, StateSetter setState) {
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white),
+      ),
+      child: TextButton(
+        onPressed: () {
+          if (number == '←') {
+            setState(() {
+              if (_adminCode.isNotEmpty) {
+                _adminCode = _adminCode.substring(0, _adminCode.length - 1);
+              }
+            });
+          } else {
+            setState(() {
+              if (_adminCode.length < 4) {
+                _adminCode += number;
+                if (_adminCode.length == 4) {
+                  if (_adminCode == '0806') { // 관리자 코드를 0806으로 변경
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('타이머가 정지되었습니다.'),
+                        duration: Duration(seconds: 2),
+                        backgroundColor: Color(0xFF4CAF50),
+                      ),
+                    );
+                  } else {
+                    _adminCode = '';
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('잘못된 관리자 코드입니다.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                }
+              }
+            });
+          }
+        },
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
+          shape: const CircleBorder(),
+        ),
+        child: Text(
+          number,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+          ),
+        ),
+      ),
+    );
   }
 
   void _resetTimer() {
