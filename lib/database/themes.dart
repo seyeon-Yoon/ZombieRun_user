@@ -46,10 +46,22 @@ class ThemesDB {
       mapFile: "경로",
       hints: [
         Hint(
-          code: "1234",
+          code: "4812",
           progress: 1,
-          content: "1",
-          answer: "1",
+          content: "5번 문제를 풀고 난 단어 2를 곱해서 입력하시오.\n5번 문제를 풀고 난 단어 2를 곱해서 입력하시오.\n5번 문제를 풀고 난 단어 2를 곱해서 입력하시오.",
+          answer: "정답1",
+        ),
+        Hint(
+          code: "1234",
+          progress: 2,
+          content: "두 번째 힌트 내용입니다.",
+          answer: "정답2",
+        ),
+        Hint(
+          code: "5678",
+          progress: 3,
+          content: "세 번째 힌트 내용입니다.",
+          answer: "정답3",
         ),
       ],
       places: [],
