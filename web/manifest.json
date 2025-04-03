@@ -1,11 +1,11 @@
 {
-    "name": "zombie_run_user",
-    "short_name": "zombie_run_user",
+    "name": "좀비런",
+    "short_name": "좀비런",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#333333",
+    "theme_color": "#333333",
+    "description": "좀비런",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
