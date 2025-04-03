@@ -3,7 +3,7 @@
     "short_name": "좀비런",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#333333",
+    "background_color": "#00000000",
     "theme_color": "#333333",
     "description": "좀비런",
     "orientation": "portrait-primary",
