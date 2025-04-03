@@ -31,10 +31,12 @@ class _HintScreenState extends State<HintScreen> {
         elevation: 0,
         leading: IconButton(
           padding: EdgeInsets.zero,
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-            size: 70,
+          icon: const Text(
+            '<',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 40,
+            ),
           ),
           onPressed: () => Navigator.pop(context),
         ),
