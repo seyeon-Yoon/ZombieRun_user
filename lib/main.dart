@@ -60,6 +60,48 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                width: 300,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // TODO: 스토리 페이지로 이동하는 코드 추가
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (states) {
+                        if (states.contains(MaterialState.pressed)) {
+                          return const Color(0xFF4CAF50);
+                        }
+                        return Colors.grey[300]!;
+                      },
+                    ),
+                    foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (states) {
+                        if (states.contains(MaterialState.pressed)) {
+                          return Colors.white;
+                        }
+                        return Colors.black;
+                      },
+                    ),
+                    padding: MaterialStateProperty.all(
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    ),
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  child: const Text(
+                    '스토리',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
                 margin: const EdgeInsets.only(bottom: 50),
                 width: 300,
                 child: ElevatedButton(
