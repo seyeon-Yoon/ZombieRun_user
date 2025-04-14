@@ -87,7 +87,7 @@ class _HintScreenState extends State<HintScreen> {
                         hint.content,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
+                          fontSize: 30,
                           height: 1.5,
                         ),
                         textAlign: TextAlign.center,
