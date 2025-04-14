@@ -64,7 +64,35 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: 300,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: 스토리 페이지로 이동하는 코드 추가
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          backgroundColor: const Color(0xFF333333),
+                          insetPadding: const EdgeInsets.all(20),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.9,
+                            height: MediaQuery.of(context).size.height * 0.9,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Container(
+                                      width: double.infinity,
+                                      child: Image.asset(
+                                        'assets/images/story.png',
+                                        fit: BoxFit.fitWidth,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
