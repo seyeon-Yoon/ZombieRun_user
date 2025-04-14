@@ -17,10 +17,19 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
   @override
   void initState() {
     super.initState();
     _showTimerEndedAlert();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -78,11 +87,62 @@ class _MapPageState extends State<MapPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF333333),
-      body: Center(
-        child: Image.asset(
-          'assets/images/map.png',
-          fit: BoxFit.contain,
-        ),
+      body: Stack(
+        children: [
+          PageView(
+            controller: _pageController,
+            onPageChanged: (int page) {
+              setState(() {
+                _currentPage = page;
+              });
+            },
+            children: [
+              // 첫 번째 지도
+              Center(
+                child: Image.asset(
+                  'assets/images/map.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+              // 두 번째 지도
+              Center(
+                child: Image.asset(
+                  'assets/images/map2.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ],
+          ),
+          // 페이지 인디케이터
+          Positioned(
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _currentPage == 0 ? const Color(0xFF4CAF50) : Colors.white.withOpacity(0.5),
+                  ),
+                ),
+                Container(
+                  width: 8,
+                  height: 8,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _currentPage == 1 ? const Color(0xFF4CAF50) : Colors.white.withOpacity(0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
