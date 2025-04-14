@@ -20,13 +20,58 @@ class UsersDB {
     ),
     User(
       id: "user1",
-      password: "5678",
+      password: "1234",
       name: "사용자1",
     ),
     User(
       id: "user2",
-      password: "9012",
+      password: "1234",
       name: "사용자2",
+    ),
+    User(
+      id: "user3",
+      password: "1234",
+      name: "사용자3",
+    ),
+    User(
+      id: "user4",
+      password: "1234",
+      name: "사용자4",
+    ),
+    User(
+      id: "user5",
+      password: "1234",
+      name: "사용자5",
+    ),  
+    User(
+      id: "user6",
+      password: "1234",
+      name: "사용자6",
+    ),
+  User(
+      id: "user7",
+      password: "1234",
+      name: "사용자7",
+    ),User(
+      id: "user8",
+      password: "1234",
+      name: "사용자8",
+    ),User(
+      id: "user9",
+      password: "1234",
+      name: "사용자9",
+    ),User(
+      id: "user10",
+      password: "1234",
+      name: "사용자10",
+    ),User(
+      id: "user11",
+      password: "1234",
+      name: "사용자11",
+    ),User(
+      id: "user12",
+      password: "1234",
+      name: "사용자12",
     ),
   ];
 
